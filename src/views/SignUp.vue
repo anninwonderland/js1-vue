@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="container">
-            <form>
+            <form @submit="checkForm">
                 <div class="field">
                     <label for="login"
                            class="label"
@@ -12,13 +12,14 @@
                                name="login"
                                id="login"
                                v-model="login"
+                               v-bind:class="{'is-danger': ifError}"
                         >
                     </div>
                     <p class="help"
                        id="login-error"
-                       v-model="loginError"
-                       v-bind:class="{ hidden: isHidden }"
-                    > {{errorMessage}}</p>
+                       v-bind:class="{'is-hidden': ifError,
+                                      'is-danger': ifError}"
+                    > {{loginMessage}}</p>
                 </div>
                 <div class="field">
                     <label for="phone"
@@ -29,13 +30,15 @@
                                type="tel" name="phone"
                                id="phone"
                                v-model="phone"
+                               v-bind:class="{'is-danger': ifError}"
                         >
                     </div>
                     <p class="help"
                        id="phone-error"
                        v-model="phoneError"
-                       v-bind:class="{ hidden: isHidden }"
-                    >{{errorMessage}}</p>
+                       v-bind:class="{'is-hidden': ifError,
+                                      'is-danger': ifError}"
+                    >{{phoneMessage}}</p>
                 </div>
                 <div class="field">
                     <label for="password"
@@ -47,18 +50,19 @@
                                name="password"
                                id="password"
                                v-model="password"
+                               v-bind:class="{'is-danger': ifError}"
                         >
                     </div>
                     <p class="help"
                        id="password-error"
                        v-model="passwordError"
-                       v-bind:class="{ hidden: isHidden }"
-                    >{{errorMessage}}</p>
+                       v-bind:class="{'is-hidden': ifError,
+                                      'is-danger': ifError}"
+                    >{{passwordMessage}}</p>
                 </div>
                 <div class="control">
                     <button class="button"
                             type="submit"
-                            @submit="checkForm"
                     >Войти
                     </button>
                 </div>
@@ -73,45 +77,54 @@
         name: 'signUp',
         data: () => (
             {
-                login: null,
-                phone: null,
-                password: null,
+                login: "",
+                phone: "",
+                password: "",
 
                 loginError: null,
                 phoneError: null,
                 passwordError: null,
 
-                isHidden: true,
+                ifError: true,
 
-                errorMessage: "Заполните поле",
+                loginMessage: "Заполните поле",
+                phoneMessage: "Заполните поле",
+                passwordMessage: "Заполните поле",
             }),
 
         methods: {
-            formatted: function(field) {
+            formatted: function (field) {
                 let rawLength = field.length;
-                let formattedLength = field.replace(/[^0-9]/g, "").length;
-
+                let formattedLength = field.replace(/[^a-zA-Z0-9_]/g, "").length;
                 return (rawLength === formattedLength);
             },
 
-            checkForm: function(event) {
+            catchError: function (field, msg) {
+                if (!field) {
+                    msg = "Заполните поле";
+                    this.ifError = false;
+                } else if (!this.formatted(field)) {
+                    msg = "Неверный формат";
+                    this.ifError = false;
+                } else {
+                    this.ifError = true;
+                }
+            },
 
+            checkForm: function (event) {
                 let filled = (this.login && this.phone && this.password);
                 let formatted = this.formatted(this.login) && this.formatted(this.phone) && this.formatted(this.password);
 
-                console.log("login: " + this.login);
-                console.log("formatted: " + formatted);
-                console.log("filled: " + filled);
-
                 if (filled && formatted) {
-                    //no errors
+                    //no errors, do smth
                     console.log("filled && formatted");
                     return true;
                 }
 
-                if (!this.login) {
-                    this.isHidden = false;
-                }
+                this.catchError(this.login, this.loginMessage);
+                console.log("is hidden: " + this.ifError);
+                this.catchError(this.phone, this.phoneMessage);
+                this.catchError(this.password, this.passwordMessage);
 
                 event.preventDefault();
                 console.log("PREVENTED");
@@ -142,7 +155,7 @@
         width: 20%;
     }
 
-    .hidden {
+    .is-hidden {
         visibility: hidden;
     }
 </style>
