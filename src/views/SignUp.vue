@@ -1,7 +1,8 @@
 <template>
     <div>
         <div class="container">
-            <form @submit="checkForm">
+            <form @submit.once="checkForm"
+                  @input.="checkForm">
                 <div class="field">
                     <label for="login"
                            class="label"
@@ -12,13 +13,13 @@
                                name="login"
                                id="login"
                                v-model="login"
-                               v-bind:class="{'is-danger': ifError}"
+                               v-bind:class="{'is-danger': loginError}"
                         >
                     </div>
                     <p class="help"
                        id="login-error"
-                       v-bind:class="{'is-hidden': ifError,
-                                      'is-danger': ifError}"
+                       v-bind:class="{'is-hidden': !loginError,
+                                      'is-danger': loginError}"
                     > {{loginMessage}}</p>
                 </div>
                 <div class="field">
@@ -30,14 +31,14 @@
                                type="tel" name="phone"
                                id="phone"
                                v-model="phone"
-                               v-bind:class="{'is-danger': ifError}"
+                               v-bind:class="{'is-danger': phoneError}"
                         >
                     </div>
                     <p class="help"
                        id="phone-error"
                        v-model="phoneError"
-                       v-bind:class="{'is-hidden': ifError,
-                                      'is-danger': ifError}"
+                       v-bind:class="{'is-hidden': !phoneError,
+                                      'is-danger': phoneError}"
                     >{{phoneMessage}}</p>
                 </div>
                 <div class="field">
@@ -50,14 +51,14 @@
                                name="password"
                                id="password"
                                v-model="password"
-                               v-bind:class="{'is-danger': ifError}"
+                               v-bind:class="{'is-danger': passwordError}"
                         >
                     </div>
                     <p class="help"
                        id="password-error"
                        v-model="passwordError"
-                       v-bind:class="{'is-hidden': ifError,
-                                      'is-danger': ifError}"
+                       v-bind:class="{'is-hidden': !passwordError,
+                                      'is-danger': passwordError}"
                     >{{passwordMessage}}</p>
                 </div>
                 <div class="control">
@@ -81,15 +82,15 @@
                 phone: "",
                 password: "",
 
-                loginError: null,
-                phoneError: null,
-                passwordError: null,
+                loginError: false,
+                phoneError: false,
+                passwordError: false,
 
-                ifError: true,
+                loginMessage: "",
+                phoneMessage: "",
+                passwordMessage: "",
 
-                loginMessage: "Заполните поле",
-                phoneMessage: "Заполните поле",
-                passwordMessage: "Заполните поле",
+                firstCheck: false,
             }),
 
         methods: {
@@ -99,35 +100,52 @@
                 return (rawLength === formattedLength);
             },
 
-            catchError: function (field, msg) {
+            catchError: function (field) {
                 if (!field) {
-                    msg = "Заполните поле";
-                    this.ifError = false;
+                    return "Заполните поле"
                 } else if (!this.formatted(field)) {
-                    msg = "Неверный формат";
-                    this.ifError = false;
-                } else {
-                    this.ifError = true;
+                    return "Неверный формат";
                 }
             },
 
             checkForm: function (event) {
+                this.firstCheck = true;
+
                 let filled = (this.login && this.phone && this.password);
                 let formatted = this.formatted(this.login) && this.formatted(this.phone) && this.formatted(this.password);
 
                 if (filled && formatted) {
                     //no errors, do smth
-                    console.log("filled && formatted");
+                    alert("You're in!");
                     return true;
                 }
 
-                this.catchError(this.login, this.loginMessage);
-                console.log("is hidden: " + this.ifError);
-                this.catchError(this.phone, this.phoneMessage);
-                this.catchError(this.password, this.passwordMessage);
+                let res = this.catchError(this.login);
+
+                if (res) {
+                    this.loginMessage = res;
+                    this.loginError = true;
+                } else {
+                    this.loginError = false;
+                }
+
+                res = this.catchError(this.phone);
+                if (res) {
+                    this.phoneMessage = res;
+                    this.phoneError = true;
+                } else {
+                    this.phoneError = false;
+                }
+
+                res = this.catchError(this.password);
+                if (res) {
+                    this.passwordMessage = res;
+                    this.passwordError = true;
+                } else {
+                    this.passwordError = false;
+                }
 
                 event.preventDefault();
-                console.log("PREVENTED");
             },
         },
 
