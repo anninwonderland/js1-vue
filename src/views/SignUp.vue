@@ -2,7 +2,7 @@
     <div>
         <div class="container">
             <form @submit.once="checkForm"
-                  @input.="checkForm">
+                  @input="checkForm">
                 <div class="field">
                     <label for="login"
                            class="label"
@@ -64,6 +64,7 @@
                 <div class="control">
                     <button class="button"
                             type="submit"
+                            @click="firstCheck = true"
                     >Войти
                     </button>
                 </div>
@@ -109,13 +110,16 @@
             },
 
             checkForm: function (event) {
-                this.firstCheck = true;
+
+                console.log(this.firstCheck);
+                if (!this.firstCheck) {
+                    return;
+                }
 
                 let filled = (this.login && this.phone && this.password);
                 let formatted = this.formatted(this.login) && this.formatted(this.phone) && this.formatted(this.password);
 
                 if (filled && formatted) {
-                    //no errors, do smth
                     alert("You're in!");
                     return true;
                 }
