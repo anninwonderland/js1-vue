@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="container">
-            <form @submit.once="checkForm"
+            <form @submit="checkFormFromButton"
                   @input="checkForm">
                 <div class="field">
                     <label for="login"
@@ -64,7 +64,6 @@
                 <div class="control">
                     <button class="button"
                             type="submit"
-                            @click="firstCheck = true"
                     >Войти
                     </button>
                 </div>
@@ -91,13 +90,27 @@
                 phoneMessage: "",
                 passwordMessage: "",
 
-                firstCheck: false,
+                firstCheck: false
             }),
 
         methods: {
             formatted: function (field) {
                 let rawLength = field.length;
-                let formattedLength = field.replace(/[^a-zA-Z0-9_]/g, "").length;
+                let formattedLength = (field === this.phone) ? field.replace(/[^0-9_]/g, "").length
+                    : field.replace(/[^a-zA-Z0-9_]/g, "").length;
+
+                if (field === this.login && formattedLength < 5) {
+                    return false;
+                }
+
+                if (field === this.phone && formattedLength !== 11) {
+                    return false;
+                }
+
+                if (field === this.password && formattedLength < 6) {
+                    return false;
+                }
+
                 return (rawLength === formattedLength);
             },
 
@@ -109,18 +122,33 @@
                 }
             },
 
+            checkFormFromButton: function(event){
+                event.preventDefault();
+                this.firstCheck = true;
+
+                if (this.checkForm()) {
+                    alert("Yahoo!");
+                }
+            },
+
             checkForm: function (event) {
 
-                console.log(this.firstCheck);
                 if (!this.firstCheck) {
                     return;
                 }
 
                 let filled = (this.login && this.phone && this.password);
-                let formatted = this.formatted(this.login) && this.formatted(this.phone) && this.formatted(this.password);
+                let formatted = this.formatted(this.login) &&
+                    this.formatted(this.phone) &&
+                    this.formatted(this.password);
 
                 if (filled && formatted) {
-                    alert("You're in!");
+
+                    this.loginError = false;
+                    this.phoneError = false;
+                    this.passwordError = false;
+
+                    console.log("Correct!");
                     return true;
                 }
 
@@ -149,8 +177,9 @@
                     this.passwordError = false;
                 }
 
-                event.preventDefault();
+                event.preventDefault()
             },
+
         },
 
     }
