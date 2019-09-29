@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="container">
-            <form @submit="checkFromButton"
+            <form @submit="checkByClick"
                   @input="validateForm">
                 <div class="field">
                     <label for="login"
@@ -100,7 +100,9 @@
 
                 if (!rawLength) {
                     return "Обязательное поле"
-                } else if (rawLength === formattedLength) {
+                }
+
+                if (rawLength !== formattedLength) {
                     return "Недопустимые символы"
                 }
 
@@ -119,26 +121,14 @@
                 return "";
             },
 
-
-            checkFromButton: function(event){
-                this.firstCheck = true;
-                event.preventDefault();
-
-                if (this.validateForm(event)) {
-                    alert("Yahoo!");
-                } else {
-                    event.preventDefault();
-                }
-            },
-
             validateForm: function (event) {
                 event.preventDefault();
 
                 if (!this.firstCheck) {
-                    return;
+                    return false;
                 }
 
-                this.loginMessage =  this.checkFormat(this.login);
+                this.loginMessage = this.checkFormat(this.login);
                 this.phoneMessage = this.checkFormat(this.phone);
                 this.passwordMessage = this.checkFormat(this.password);
 
@@ -146,7 +136,17 @@
                 this.phoneError = Boolean(this.phoneMessage);
                 this.passwordError = Boolean(this.passwordMessage);
 
-                return this.loginError || this.phoneError || this.passwordError;
+                return !this.loginError && !this.phoneError && !this.passwordError;
+            },
+
+            checkByClick: function (event) {
+                this.firstCheck = true;
+
+                if (this.validateForm(event)) {
+                    alert("Yahoo!");
+                } else {
+                    event.preventDefault();
+                }
             },
 
         },
