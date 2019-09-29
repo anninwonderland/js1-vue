@@ -124,14 +124,17 @@
             validateForm: function (event) {
                 event.preventDefault();
 
+                //activate on-input validation
                 if (!this.firstCheck) {
                     return false;
                 }
 
+                //set error messages
                 this.loginMessage = this.checkFormat(this.login);
                 this.phoneMessage = this.checkFormat(this.phone);
                 this.passwordMessage = this.checkFormat(this.password);
 
+                //display errors if needed
                 this.loginError = Boolean(this.loginMessage);
                 this.phoneError = Boolean(this.phoneMessage);
                 this.passwordError = Boolean(this.passwordMessage);
@@ -148,10 +151,9 @@
                     event.preventDefault();
                 }
             },
-
         },
-
     }
+
 </script>
 
 <style>
