@@ -1,8 +1,8 @@
 <template>
     <div>
         <div class="container">
-            <form @submit="checkFormFromButton"
-                  @input="checkForm">
+            <form @submit="checkFromButton"
+                  @input="validateForm">
                 <div class="field">
                     <label for="login"
                            class="label"
@@ -18,8 +18,7 @@
                     </div>
                     <p class="help"
                        id="login-error"
-                       v-bind:class="{'is-hidden': !loginError,
-                                      'is-danger': loginError}"
+                       v-bind:class="{'is-danger': loginError}"
                     > {{loginMessage}}</p>
                 </div>
                 <div class="field">
@@ -37,8 +36,7 @@
                     <p class="help"
                        id="phone-error"
                        v-model="phoneError"
-                       v-bind:class="{'is-hidden': !phoneError,
-                                      'is-danger': phoneError}"
+                       v-bind:class="{ 'is-danger': phoneError}"
                     >{{phoneMessage}}</p>
                 </div>
                 <div class="field">
@@ -57,8 +55,7 @@
                     <p class="help"
                        id="password-error"
                        v-model="passwordError"
-                       v-bind:class="{'is-hidden': !passwordError,
-                                      'is-danger': passwordError}"
+                       v-bind:class="{'is-danger': passwordError}"
                     >{{passwordMessage}}</p>
                 </div>
                 <div class="control">
@@ -90,94 +87,66 @@
                 phoneMessage: "",
                 passwordMessage: "",
 
-                firstCheck: false
+                firstCheck: false,
             }),
 
         methods: {
-            formatted: function (field) {
+            checkFormat: function (field) {
+
                 let rawLength = field.length;
-                let formattedLength = (field === this.phone) ? field.replace(/[^0-9_]/g, "").length
+                let formattedLength = (field === this.phone)
+                    ? field.replace(/[^0-9_]/g, "").length
                     : field.replace(/[^a-zA-Z0-9_]/g, "").length;
 
+                if (!rawLength) {
+                    return "Обязательное поле"
+                } else if (rawLength === formattedLength) {
+                    return "Недопустимые символы"
+                }
+
                 if (field === this.login && formattedLength < 5) {
-                    return false;
+                    return "Введите больше 5 символов";
                 }
 
                 if (field === this.phone && formattedLength !== 11) {
-                    return false;
+                    return "Введите 11 цифр";
                 }
 
                 if (field === this.password && formattedLength < 6) {
-                    return false;
+                    return "Введите больше 6 символов";
                 }
 
-                return (rawLength === formattedLength);
+                return "";
             },
 
-            catchError: function (field) {
-                if (!field) {
-                    return "Заполните поле"
-                } else if (!this.formatted(field)) {
-                    return "Неверный формат";
-                }
-            },
 
-            checkFormFromButton: function(event){
-                event.preventDefault();
+            checkFromButton: function(event){
                 this.firstCheck = true;
+                event.preventDefault();
 
-                if (this.checkForm()) {
+                if (this.validateForm(event)) {
                     alert("Yahoo!");
+                } else {
+                    event.preventDefault();
                 }
             },
 
-            checkForm: function (event) {
+            validateForm: function (event) {
+                event.preventDefault();
 
                 if (!this.firstCheck) {
                     return;
                 }
 
-                let filled = (this.login && this.phone && this.password);
-                let formatted = this.formatted(this.login) &&
-                    this.formatted(this.phone) &&
-                    this.formatted(this.password);
+                this.loginMessage =  this.checkFormat(this.login);
+                this.phoneMessage = this.checkFormat(this.phone);
+                this.passwordMessage = this.checkFormat(this.password);
 
-                if (filled && formatted) {
+                this.loginError = Boolean(this.loginMessage);
+                this.phoneError = Boolean(this.phoneMessage);
+                this.passwordError = Boolean(this.passwordMessage);
 
-                    this.loginError = false;
-                    this.phoneError = false;
-                    this.passwordError = false;
-
-                    console.log("Correct!");
-                    return true;
-                }
-
-                let res = this.catchError(this.login);
-
-                if (res) {
-                    this.loginMessage = res;
-                    this.loginError = true;
-                } else {
-                    this.loginError = false;
-                }
-
-                res = this.catchError(this.phone);
-                if (res) {
-                    this.phoneMessage = res;
-                    this.phoneError = true;
-                } else {
-                    this.phoneError = false;
-                }
-
-                res = this.catchError(this.password);
-                if (res) {
-                    this.passwordMessage = res;
-                    this.passwordError = true;
-                } else {
-                    this.passwordError = false;
-                }
-
-                event.preventDefault()
+                return this.loginError || this.phoneError || this.passwordError;
             },
 
         },
@@ -204,9 +173,5 @@
 
     form {
         width: 20%;
-    }
-
-    .is-hidden {
-        visibility: hidden;
     }
 </style>
