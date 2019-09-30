@@ -91,10 +91,10 @@
             }),
 
         methods: {
-            checkFormat: function (field) {
+            checkFormat: function (field, type) {
 
                 let rawLength = field.length;
-                let formattedLength = (field === this.phone)
+                let formattedLength = (type === 'phone')
                     ? field.replace(/[^0-9_]/g, "").length
                     : field.replace(/[^a-zA-Z0-9_]/g, "").length;
 
@@ -106,16 +106,16 @@
                     return "Недопустимые символы"
                 }
 
-                if (field === this.login && formattedLength < 5) {
-                    return "Введите больше 5 символов";
+                if (type === 'login' && formattedLength < 5) {
+                    return "Введите более 5 символов";
                 }
 
-                if (field === this.phone && formattedLength !== 11) {
+                if (type === 'phone' && formattedLength !== 11) {
                     return "Введите 11 цифр";
                 }
 
-                if (field === this.password && formattedLength < 6) {
-                    return "Введите больше 6 символов";
+                if (type === 'password' && formattedLength < 6) {
+                    return "Введите более 6 символов";
                 }
 
                 return "";
@@ -130,9 +130,9 @@
                 }
 
                 //set error messages
-                this.loginMessage = this.checkFormat(this.login);
-                this.phoneMessage = this.checkFormat(this.phone);
-                this.passwordMessage = this.checkFormat(this.password);
+                this.loginMessage = this.checkFormat(this.login, 'login');
+                this.phoneMessage = this.checkFormat(this.phone, 'phone');
+                this.passwordMessage = this.checkFormat(this.password, 'password');
 
                 //display errors if needed
                 this.loginError = Boolean(this.loginMessage);
